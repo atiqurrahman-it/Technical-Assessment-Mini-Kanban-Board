@@ -1,0 +1,115 @@
+// Mini Kanban Board — data model.
+//
+// Ordering strategy: Column.position and Task.position are plain zero-based
+// integers, re-indexed (0..n-1) within whichever column(s) a move touches.
+// See TasksService.moveTask for the rationale (kept out of the schema since
+// it's a behavioral, not structural, concern).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Users & Auth
+// ============================================================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedBoards    Board[]       @relation("BoardOwner")
+  memberships    BoardMember[]
+  createdTasks   Task[]        @relation("TaskCreatedBy")
+}
+
+// ============================================================================
+// Boards & Sharing
+// ============================================================================
+
+enum BoardRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner   User          @relation("BoardOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members BoardMember[]
+  columns Column[]
+  tasks   Task[]
+
+  @@index([ownerId])
+}
+
+// A shared access grant on a board. The owner is tracked on Board.ownerId
+// directly and never gets a row here — membership rows only exist for users
+// the board was explicitly shared with.
+model BoardMember {
+  id        String    @id @default(cuid())
+  boardId   String
+  userId    String
+  role      BoardRole @default(EDITOR)
+  createdAt DateTime  @default(now())
+
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+  @@index([userId])
+}
+
+// ============================================================================
+// Workflow: Columns & Tasks
+// ============================================================================
+
+model Column {
+  id        String   @id @default(cuid())
+  boardId   String
+  name      String
+  position  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([boardId, position])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  columnId    String
+  // Denormalized from Column.boardId so access-control checks and board-wide
+  // queries don't need an extra join through Column on every request.
+  boardId     String
+  title       String
+  description String?  @db.Text
+  position    Int
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  column    Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  board     Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdBy User   @relation("TaskCreatedBy", fields: [createdById], references: [id])
+
+  @@index([columnId, position])
+  @@index([boardId])
+}
