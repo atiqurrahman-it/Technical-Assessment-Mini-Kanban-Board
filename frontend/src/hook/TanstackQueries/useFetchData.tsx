@@ -2,7 +2,7 @@
 
 import { useAuthStore } from "@/store/authStore";
 import { RemoveEmptyFields } from "@/utils/inputFiled/RemoveEmptyFields";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchData } from "./fetchGetData";
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
   method?: "GET" | "POST";
   enabled?: boolean;
   withOutToken?: boolean;
+  /** Keep showing the previous page's data (instead of flashing a loading state) while a new page/filter combination fetches — needed for paginated lists so controls don't unmount mid-refetch. */
+  keepPreviousData?: boolean;
 }
 
 /**
@@ -29,6 +31,7 @@ const useFetchData = <T = any,>({
   token: explicitToken,
   withOutToken = false,
   enabled = true,
+  keepPreviousData: shouldKeepPreviousData = false,
 }: Props) => {
   const { token: authToken } = useAuthStore();
   const token = explicitToken || authToken || "";
@@ -48,6 +51,7 @@ const useFetchData = <T = any,>({
     ],
     queryFn: fetchData,
     enabled: enabled && (withOutToken || !!token),
+    placeholderData: shouldKeepPreviousData ? keepPreviousData : undefined,
   });
 };
 

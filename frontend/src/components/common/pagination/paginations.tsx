@@ -14,6 +14,15 @@ import {
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import PaginationLimit from "./cus_limitField";
+
+/** Pass this to `CusPagination`'s `pageLimit` prop to show the rows-per-page selector; omit it to leave the control out entirely. */
+export interface PageLimitConfig {
+  setLimit: (limit: string) => void;
+  options?: string[];
+  totalItems?: number;
+  placeholder?: string;
+}
 
 /** Theme-token colors so the control matches the rest of the app in both light and dark mode. */
 const inactiveButtonClass =
@@ -25,10 +34,13 @@ const CusPagination = ({
   totalPages = 1,
   setCurrentPage,
   currentPage,
+  pageLimit,
 }: {
   totalPages: number;
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  /** Rows-per-page selector, shown at the right end of the pagination bar. Omit to hide it. */
+  pageLimit?: PageLimitConfig;
 }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -68,92 +80,134 @@ const CusPagination = ({
   }, [currentPage]);
 
   return (
-    <Pagination>
-      <PaginationContent className="flex items-center justify-center gap-1.5">
-        {/* Previous */}
-        <PaginationItem>
-          {currentPage === 1 ? (
-            <PaginationPrevious className={cn(inactiveButtonClass, "pointer-events-none opacity-50")} />
-          ) : (
-            <PaginationPrevious
-              className={cn(inactiveButtonClass, "cursor-pointer")}
-              onClick={() => handlePageChange(currentPage - 1)}
-            />
-          )}
-        </PaginationItem>
-
-        {/* Always show first page */}
-        {startPage > 1 && (
-          <>
-            <PaginationItem>
-              <PaginationLink
-                className={cn(inactiveButtonClass, "cursor-pointer")}
-                onClick={() => handlePageChange(1)}
-                isActive={false}
-              >
-                1
-              </PaginationLink>
-            </PaginationItem>
-            {startPage > 2 && (
-              <PaginationItem>
-                <PaginationEllipsis className="text-muted-foreground" />
-              </PaginationItem>
-            )}
-          </>
+    <div className="p-4 border-t-0 bg-black text-slate-700 dark:text-slate-300 m-0">
+      <div
+        className={cn(
+          "flex items-center gap-4",
+          pageLimit ? "justify-between" : "justify-center",
+        )}
+      >
+        {/* Balances the PaginationLimit's width on the right so the page numbers stay centered. */}
+        {pageLimit && (
+          <div aria-hidden className="hidden sm:block sm:w-[110px]" />
         )}
 
-        {Array.from({ length: endPage - startPage + 1 }).map((_, index) => {
-          const pageNum = startPage + index;
-          const active = currentPage === pageNum;
-          return (
-            <PaginationItem key={index}>
-              <PaginationLink
-                className={cn("cursor-pointer", active ? activeButtonClass : inactiveButtonClass)}
-                onClick={() => handlePageChange(pageNum)}
-                isActive={active}
-              >
-                {pageNum}
-              </PaginationLink>
-            </PaginationItem>
-          );
-        })}
-
-        {/* Always show last page */}
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && (
-              <PaginationItem>
-                <PaginationEllipsis className="text-muted-foreground" />
-              </PaginationItem>
-            )}
+        <Pagination className="w-auto flex-1">
+          <PaginationContent className="flex items-center justify-center gap-1.5">
+            {/* Previous */}
             <PaginationItem>
-              <PaginationLink
-                className={cn(
-                  "cursor-pointer",
-                  currentPage === totalPages ? activeButtonClass : inactiveButtonClass,
+              {currentPage === 1 ? (
+                <PaginationPrevious
+                  className={cn(
+                    inactiveButtonClass,
+                    "pointer-events-none opacity-50",
+                  )}
+                />
+              ) : (
+                <PaginationPrevious
+                  className={cn(inactiveButtonClass, "cursor-pointer")}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+              )}
+            </PaginationItem>
+
+            {/* Always show first page */}
+            {startPage > 1 && (
+              <>
+                <PaginationItem>
+                  <PaginationLink
+                    className={cn(inactiveButtonClass, "cursor-pointer")}
+                    onClick={() => handlePageChange(1)}
+                    isActive={false}
+                  >
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+                {startPage > 2 && (
+                  <PaginationItem>
+                    <PaginationEllipsis className="text-muted-foreground" />
+                  </PaginationItem>
                 )}
-                onClick={() => handlePageChange(totalPages)}
-                isActive={currentPage === totalPages}
-              >
-                {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-          </>
-        )}
+              </>
+            )}
 
-        {/* Next */}
-        <PaginationItem>
-          {currentPage === totalPages ? (
-            <PaginationNext className={cn(inactiveButtonClass, "pointer-events-none opacity-50")} />
-          ) : (
-            <PaginationNext
-              className={cn(inactiveButtonClass, "cursor-pointer")}
-              onClick={() => handlePageChange(currentPage + 1)}
+            {Array.from({ length: endPage - startPage + 1 }).map((_, index) => {
+              const pageNum = startPage + index;
+              const active = currentPage === pageNum;
+              return (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    className={cn(
+                      "cursor-pointer",
+                      active ? activeButtonClass : inactiveButtonClass,
+                    )}
+                    onClick={() => handlePageChange(pageNum)}
+                    isActive={active}
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+
+            {/* Always show last page */}
+            {endPage < totalPages && (
+              <>
+                {endPage < totalPages - 1 && (
+                  <PaginationItem>
+                    <PaginationEllipsis className="text-muted-foreground" />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationLink
+                    className={cn(
+                      "cursor-pointer",
+                      currentPage === totalPages
+                        ? activeButtonClass
+                        : inactiveButtonClass,
+                    )}
+                    onClick={() => handlePageChange(totalPages)}
+                    isActive={currentPage === totalPages}
+                  >
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            )}
+
+            {/* Next */}
+            <PaginationItem>
+              {currentPage === totalPages ? (
+                <PaginationNext
+                  className={cn(
+                    inactiveButtonClass,
+                    "pointer-events-none opacity-50",
+                  )}
+                />
+              ) : (
+                <PaginationNext
+                  className={cn(inactiveButtonClass, "cursor-pointer")}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                />
+              )}
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+        {pageLimit && (
+          <div className="flex items-center gap-2">
+            <p>per page</p>
+            <PaginationLimit
+              placeholder={pageLimit.placeholder}
+              setLimit={pageLimit.setLimit}
+              options={pageLimit.options}
+              totalItems={pageLimit.totalItems}
+              setCurrentPage={setCurrentPage}
             />
-          )}
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 export default CusPagination;

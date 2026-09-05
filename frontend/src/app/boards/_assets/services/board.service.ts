@@ -18,6 +18,7 @@ export function useBoards({ page = 1, pageSize = 9 }: { page?: number; pageSize?
     path: "boards",
     queryKey: BOARDS_QUERY_KEY,
     filterData: { page, pageSize },
+    keepPreviousData: true,
   });
 }
 

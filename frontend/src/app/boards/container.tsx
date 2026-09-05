@@ -9,8 +9,6 @@ import { BoardsSkeleton } from "./_assets/components/BoardsSkeleton";
 import { CreateBoardDialog } from "./_assets/components/CreateBoardDialog";
 import { useBoards } from "./_assets/services/board.service";
 
-const PAGE_SIZE = 9;
-
 export default function BoardsContainer() {
   return (
     <AuthGuard>
@@ -21,7 +19,8 @@ export default function BoardsContainer() {
 
 function BoardsList() {
   const [page, setPage] = useState(1);
-  const { data: response, isLoading } = useBoards({ page, pageSize: PAGE_SIZE });
+  const [pageSize, setPageSize] = useState("10");
+  const { data: response, isLoading } = useBoards({ page, pageSize: Number(pageSize) });
   const boards = response?.data ?? [];
   const totalPages = response?.pagination?.totalPages ?? 1;
 
@@ -46,11 +45,17 @@ function BoardsList() {
               <BoardCard key={board.id} board={board} />
             ))}
           </div>
-          {totalPages > 1 && (
-            <div className="mt-8">
-              <CusPagination currentPage={page} totalPages={totalPages} setCurrentPage={setPage} />
-            </div>
-          )}
+          <div className="mt-8">
+            <CusPagination
+              currentPage={page}
+              totalPages={totalPages}
+              setCurrentPage={setPage}
+              pageLimit={{
+                setLimit: setPageSize,
+                totalItems: response?.pagination?.totalItems,
+              }}
+            />
+          </div>
         </>
       ) : (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-24 text-center">

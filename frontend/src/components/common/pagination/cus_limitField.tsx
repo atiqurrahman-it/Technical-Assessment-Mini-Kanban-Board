@@ -66,21 +66,23 @@ const PaginationLimit = ({
           if (!open) setTooltipOpen(false); // allow close
         }}
       >
-        <TooltipTrigger asChild>
-          <div
-            onMouseEnter={() => setTooltipOpen(true)}
-            onMouseLeave={() => setTooltipOpen(false)}
-            onClick={() => setTooltipOpen(false)} // force close on click
-          >
-            <SelectField
-              name="limit"
-              showSearch={false}
-              placeholder={placeholder}
-              options={OptionsList}
-              onValueChange={handleLimitChange}
-              value={currentLimit}
+        <TooltipTrigger
+          render={
+            <div
+              onMouseEnter={() => setTooltipOpen(true)}
+              onMouseLeave={() => setTooltipOpen(false)}
+              onClick={() => setTooltipOpen(false)} // force close on click
             />
-          </div>
+          }
+        >
+          <SelectField
+            name="limit"
+            showSearch={false}
+            placeholder={placeholder}
+            options={OptionsList}
+            onValueChange={handleLimitChange}
+            value={currentLimit}
+          />
         </TooltipTrigger>
         <TooltipContent className="bg-slate-500 text-white">
           <p className="text-[10px]">Number of entries per page</p>
