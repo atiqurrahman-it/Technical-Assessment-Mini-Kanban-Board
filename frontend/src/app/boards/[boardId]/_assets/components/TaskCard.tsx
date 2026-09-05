@@ -67,7 +67,13 @@ export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
 
       {!overlay && (
         <>
-          <TaskDialog boardId={boardId} task={task} open={isEditing} onOpenChange={setIsEditing} />
+          <TaskDialog
+            boardId={boardId}
+            task={task}
+            open={isEditing}
+            onOpenChange={setIsEditing}
+            viewOnly={!canEdit}
+          />
           <ConfirmDialog
             open={confirmingDelete}
             onOpenChange={setConfirmingDelete}

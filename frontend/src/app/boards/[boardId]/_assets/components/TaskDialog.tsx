@@ -17,10 +17,19 @@ interface TaskDialogProps {
   task?: Task;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Viewers can open the dialog to read a task, but can't edit or save it. */
+  viewOnly?: boolean;
 }
 
 /** Handles both "create a task in `columnId`" and "edit `task`" — whichever prop is set. */
-export function TaskDialog({ boardId, columnId, task, open, onOpenChange }: TaskDialogProps) {
+export function TaskDialog({
+  boardId,
+  columnId,
+  task,
+  open,
+  onOpenChange,
+  viewOnly = false,
+}: TaskDialogProps) {
   const createTask = useCreateTask(boardId);
   const updateTask = useUpdateTask(boardId);
   const form = useForm<TaskFormValues>({
@@ -56,15 +65,23 @@ export function TaskDialog({ boardId, columnId, task, open, onOpenChange }: Task
           <DialogTitle>{task ? "Edit task" : "New task"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <CustomField.Text form={form} name="title" labelName="Title" required />
-          <CustomField.TextArea form={form} name="description" labelName="Description" rows={4} />
+          <CustomField.Text form={form} name="title" labelName="Title" required viewOnly={viewOnly} />
+          <CustomField.TextArea
+            form={form}
+            name="description"
+            labelName="Description"
+            rows={4}
+            viewOnly={viewOnly}
+          />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {viewOnly ? "Close" : "Cancel"}
             </Button>
-            <Button type="submit" isLoading={isPending}>
-              {task ? "Save changes" : "Create task"}
-            </Button>
+            {!viewOnly && (
+              <Button type="submit" isLoading={isPending}>
+                {task ? "Save changes" : "Create task"}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>
