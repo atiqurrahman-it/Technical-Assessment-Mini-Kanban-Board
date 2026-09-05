@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "cn";
 import { BoardDetail } from "@/types/kanban";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, UserPlus } from "lucide-react";
@@ -46,6 +47,12 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
     id: string;
     name: string;
   } | null>(null);
+  const [pendingRoleChange, setPendingRoleChange] = useState<{
+    id: string;
+    name: string;
+    role: string;
+    roleLabel: string;
+  } | null>(null);
   const addMember = useAddMember(board.id);
   const updateRole = useUpdateMemberRole(board.id);
   const removeMember = useRemoveMember(board.id);
@@ -67,13 +74,21 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setRemovingMember(null);
+        if (!next) {
+          setRemovingMember(null);
+          setPendingRoleChange(null);
+        }
       }}
     >
       <DialogTrigger render={<Button variant="outline" />}>
         <UserPlus className="h-4 w-4" /> Share
       </DialogTrigger>
-      <DialogContent className="flex max-w-lg h-[450px] max-h-[80vh] flex-col overflow-hidden">
+      <DialogContent
+        className={cn(
+          "flex max-w-lg max-h-[80vh] flex-col overflow-hidden",
+          removingMember || pendingRoleChange ? "h-auto" : "h-[450px]",
+        )}
+      >
         {removingMember ? (
           <>
             <DialogHeader>
@@ -103,6 +118,45 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
                 }
               >
                 Remove
+              </Button>
+            </div>
+          </>
+        ) : pendingRoleChange ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>
+                Change {pendingRoleChange.name}&apos;s role to{" "}
+                {pendingRoleChange.roleLabel}?
+              </DialogTitle>
+              <DialogDescription>
+                {pendingRoleChange.roleLabel === "Editor"
+                  ? "They'll be able to view and change this board."
+                  : "They'll only be able to view this board."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-4 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPendingRoleChange(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                isLoading={updateRole.isPending}
+                onClick={() =>
+                  updateRole.mutate(
+                    {
+                      path: `boards/${board.id}/members/${pendingRoleChange.id}`,
+                      role: pendingRoleChange.role,
+                    },
+                    { onSuccess: () => setPendingRoleChange(null) },
+                  )
+                }
+              >
+                Confirm
               </Button>
             </div>
           </>
@@ -167,12 +221,17 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
                         <>
                           <Select
                             value={member.role}
-                            onValueChange={(role) =>
-                              updateRole.mutate({
-                                path: `boards/${board.id}/members/${member.user.id}`,
-                                role,
-                              })
-                            }
+                            onValueChange={(role) => {
+                              if (role && role !== member.role) {
+                                setPendingRoleChange({
+                                  id: member.user.id,
+                                  name: member.user.name,
+                                  role,
+                                  roleLabel:
+                                    role === "EDITOR" ? "Editor" : "Viewer",
+                                });
+                              }
+                            }}
                           >
                             <SelectTrigger className="h-8 text-xs">
                               <SelectValue />
