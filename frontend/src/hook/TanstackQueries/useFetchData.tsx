@@ -34,8 +34,11 @@ const useFetchData = <T = any,>({
   const token = explicitToken || authToken || "";
 
   return useQuery<T>({
+    // Spread (not nest) `queryKey` so it stays a flat prefix of the real
+    // cache key — `invalidateQueries({ queryKey: boardDetailKey(id) })`
+    // partial-matches a prefix, not a key nested one level inside another.
     queryKey: [
-      queryKey,
+      ...(Array.isArray(queryKey) ? queryKey : [queryKey]),
       {
         path,
         Method: method,

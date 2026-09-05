@@ -80,7 +80,7 @@ function applyOptimisticMove(
 /** Drives the Task Movement API — reordering within a column or across columns. */
 export function useMoveTask(boardId: string) {
   const queryClient = useQueryClient();
-  const keyPrefix = [boardDetailKey(boardId)];
+  const keyPrefix = boardDetailKey(boardId);
 
   return useApiMutation({
     method: "PATCH",

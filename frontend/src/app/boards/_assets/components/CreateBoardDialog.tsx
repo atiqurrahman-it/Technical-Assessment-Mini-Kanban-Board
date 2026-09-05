@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { BoardSummary } from "@/types/kanban";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,8 +24,6 @@ import { useCreateBoard } from "../services/board.service";
 
 export function CreateBoardDialog() {
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
-
   const router = useRouter();
   const createBoard = useCreateBoard();
   const form = useForm<CreateBoardFormValues>({
@@ -39,10 +36,6 @@ export function CreateBoardDialog() {
       onSuccess: (res: { data: BoardSummary }) => {
         setOpen(false);
         form.reset();
-        // update ui show for  boards
-        queryClient.invalidateQueries({
-          queryKey: [`boards`],
-        });
         router.push(`/boards/${res.data.id}`);
       },
     });

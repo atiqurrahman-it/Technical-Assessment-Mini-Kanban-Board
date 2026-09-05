@@ -16,7 +16,7 @@ interface QueryMeta {
  * details — see `useFetchData.tsx`.
  */
 export async function fetchData({ queryKey }: QueryFunctionContext) {
-  const [, meta] = queryKey as [unknown, QueryMeta];
+  const meta = queryKey[queryKey.length - 1] as QueryMeta;
   const { path, Method, token, queryParams } = meta;
 
   const search = new URLSearchParams();
