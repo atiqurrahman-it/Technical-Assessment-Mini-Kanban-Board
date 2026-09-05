@@ -9,15 +9,18 @@ A small Trello-style app: create boards, organize them into columns, add tasks, 
 | Frontend | Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · TanStack Query · dnd-kit |
 | Backend  | Express 4 · TypeScript · Prisma 5 · Zod · JWT (`jsonwebtoken` + `bcrypt`) |
 | Database | PostgreSQL 16                                                  |
-| DevOps   | Docker Compose (Postgres + backend + frontend)                 |
+| DevOps   | Docker Compose (separate `backend/` and `frontend/` compose files) |
 
 ## Repository layout
 
 ```
 backend/    Express API — see backend/prisma/schema/schema.prisma for the data model
+            Dockerfile + docker-compose.yml (Postgres + backend)
 frontend/   Next.js app
-docker-compose.yml
+            Dockerfile + docker-compose.yml (frontend only)
 ```
+
+There is no root-level `docker-compose.yml` — the backend and frontend each ship their own, run independently (see below).
 
 ## Architecture notes
 
@@ -31,18 +34,19 @@ docker-compose.yml
 
 ### Option A — Docker Compose (recommended)
 
+Backend and frontend each have their own `docker-compose.yml`, so bring them up separately (two terminals):
+
 ```bash
-git clone <this-repo>
-cd AssessmentAtWebBriks
-docker compose up --build
+# 1. Backend + Postgres
+cd backend
+docker compose up --build       # http://localhost:4000/api/v1
+
+# 2. Frontend (in a second terminal)
+cd frontend
+docker compose up --build       # http://localhost:3000
 ```
 
-This starts Postgres, runs the backend's pending migrations on boot, and serves:
-
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000/api/v1
-
-Override defaults by exporting `JWT_SECRET`, `NEXT_PUBLIC_API_URL`, etc. before `docker compose up`, or by creating a `.env` file next to `docker-compose.yml` (`docker compose` reads it automatically) — see the sample env vars below.
+`backend/docker-compose.yml` reads its variables from `backend/.env` (already present in this repo — edit it to change credentials/secrets); `frontend/docker-compose.yml` reads `NEXT_PUBLIC_API_URL` from the shell environment or `frontend/.env` (falls back to `http://localhost:4000/api/v1` if unset). See the sample env vars below.
 
 ### Option B — Run manually
 
@@ -51,7 +55,7 @@ Requires Node.js 20+ and a local PostgreSQL instance.
 ```bash
 # 1. Backend
 cd backend
-cp .env.example .env         # edit DATABASE_URL if needed
+# backend/.env already exists in this repo — edit DATABASE_URL/JWT_SECRET/etc as needed
 npm install
 npm run prisma:generate
 npm run prisma:migrate       # creates the kanban schema
@@ -59,7 +63,7 @@ npm run dev                  # http://localhost:4000
 
 # 2. Frontend (in a second terminal)
 cd frontend
-cp .env.example .env.local
+# frontend/.env.local already exists in this repo — edit NEXT_PUBLIC_API_URL if needed
 npm install
 npm run dev                  # http://localhost:3000
 ```
@@ -69,7 +73,14 @@ npm run dev                  # http://localhost:3000
 **`backend/.env`**
 
 ```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=kanban
+
+# Local (non-Docker) dev: postgresql://postgres:postgres@localhost:5432/kanban
+# Docker Compose:         postgresql://postgres:postgres@postgres:5432/kanban
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/kanban
+
 PORT=4000
 JWT_SECRET=change-this-to-a-long-random-secret
 JWT_EXPIRES_IN=7d
