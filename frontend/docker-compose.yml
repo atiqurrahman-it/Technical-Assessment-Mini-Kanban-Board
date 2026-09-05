@@ -10,4 +10,4 @@ services:
       - "3000:3000"
     environment:
       # This value is available inside the container at runtime
-      NEXT_PUBLIC_API_URL:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
