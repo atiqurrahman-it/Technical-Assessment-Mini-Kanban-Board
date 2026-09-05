@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, UserPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { CustomField } from "@/components/common/fields/cusInputField";
@@ -29,6 +30,7 @@ const ROLE_OPTIONS = [
 /** Invite-by-email + member list, with role management restricted to the board owner. */
 export function ShareBoardDialog({ board }: { board: BoardDetail }) {
   const [open, setOpen] = useState(false);
+  const [removingMember, setRemovingMember] = useState<{ id: string; name: string } | null>(null);
   const addMember = useAddMember(board.id);
   const updateRole = useUpdateMemberRole(board.id);
   const removeMember = useRemoveMember(board.id);
@@ -101,9 +103,7 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
                     </Select>
                     <button
                       type="button"
-                      onClick={() =>
-                        removeMember.mutate({ path: `boards/${board.id}/members/${member.user.id}` })
-                      }
+                      onClick={() => setRemovingMember({ id: member.user.id, name: member.user.name })}
                       className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       aria-label={`Remove ${member.user.name}`}
                     >
@@ -120,6 +120,22 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
           )}
         </div>
       </DialogContent>
+
+      <ConfirmDialog
+        open={removingMember !== null}
+        onOpenChange={(next) => !next && setRemovingMember(null)}
+        title={`Remove ${removingMember?.name}?`}
+        description="They'll lose access to this board until invited again."
+        confirmLabel="Remove"
+        isLoading={removeMember.isPending}
+        onConfirm={() =>
+          removingMember &&
+          removeMember.mutate(
+            { path: `boards/${board.id}/members/${removingMember.id}` },
+            { onSuccess: () => setRemovingMember(null) }
+          )
+        }
+      />
     </Dialog>
   );
 }

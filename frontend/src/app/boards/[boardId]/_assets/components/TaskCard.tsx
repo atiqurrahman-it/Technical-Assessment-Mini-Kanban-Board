@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { Task } from "@/types/kanban";
 import { useDeleteTask } from "../services/task.service";
@@ -19,6 +20,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const deleteTask = useDeleteTask(boardId);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
@@ -49,7 +51,7 @@ export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                deleteTask.mutate({ path: `boards/${boardId}/tasks/${task.id}` });
+                setConfirmingDelete(true);
               }}
               className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
               aria-label="Delete task"
@@ -64,7 +66,23 @@ export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
       </div>
 
       {!overlay && (
-        <TaskDialog boardId={boardId} task={task} open={isEditing} onOpenChange={setIsEditing} />
+        <>
+          <TaskDialog boardId={boardId} task={task} open={isEditing} onOpenChange={setIsEditing} />
+          <ConfirmDialog
+            open={confirmingDelete}
+            onOpenChange={setConfirmingDelete}
+            title="Delete task?"
+            description={`"${task.title}" will be permanently deleted. This can't be undone.`}
+            confirmLabel="Delete task"
+            isLoading={deleteTask.isPending}
+            onConfirm={() =>
+              deleteTask.mutate(
+                { path: `boards/${boardId}/tasks/${task.id}` },
+                { onSuccess: () => setConfirmingDelete(false) }
+              )
+            }
+          />
+        </>
       )}
     </>
   );

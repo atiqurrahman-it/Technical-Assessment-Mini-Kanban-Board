@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { KeyboardEvent, useState } from "react";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [name, setName] = useState(column.name);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   function submitRename() {
     setIsRenaming(false);
@@ -84,10 +86,7 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => setIsRenaming(true)}>Rename</DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => deleteColumn.mutate({ path: `boards/${boardId}/columns/${column.id}` })}
-              >
+              <DropdownMenuItem variant="destructive" onSelect={() => setConfirmingDelete(true)}>
                 Delete column
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -117,6 +116,21 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
       )}
 
       <TaskDialog boardId={boardId} columnId={column.id} open={isAddingTask} onOpenChange={setIsAddingTask} />
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`Delete "${column.name}"?`}
+        description="This will permanently delete the column and all of its tasks. This can't be undone."
+        confirmLabel="Delete column"
+        isLoading={deleteColumn.isPending}
+        onConfirm={() =>
+          deleteColumn.mutate(
+            { path: `boards/${boardId}/columns/${column.id}` },
+            { onSuccess: () => setConfirmingDelete(false) }
+          )
+        }
+      />
     </div>
   );
 }
