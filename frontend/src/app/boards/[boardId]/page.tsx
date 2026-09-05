@@ -8,7 +8,7 @@ export default async function BoardDetailPage({
   const { boardId } = await params;
   return (
     <div className="mx-auto max-w-7xl ">
-      <BoardDetailContainer boardId={boardId} />;
+      <BoardDetailContainer boardId={boardId} />
     </div>
   );
 }
