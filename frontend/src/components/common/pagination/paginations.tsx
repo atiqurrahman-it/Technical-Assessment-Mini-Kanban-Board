@@ -80,7 +80,7 @@ const CusPagination = ({
   }, [currentPage]);
 
   return (
-    <div className="p-4 border-t-0 bg-black text-slate-700 dark:text-slate-300 m-0">
+    <div className="p-4 rounded-xl border border-border bg-muted/40 text-foreground m-0">
       <div
         className={cn(
           "flex items-center gap-4",
