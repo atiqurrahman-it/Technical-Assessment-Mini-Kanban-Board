@@ -63,7 +63,7 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
   }
 
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-xl border border-border bg-muted/60">
+    <div className="flex w-72 shrink-0 flex-col rounded-xl border border-border bg-muted/60 transition-colors hover:border-primary/50">
       <div className="flex items-center justify-between gap-2 px-3.5 pb-2 pt-3.5">
         {isRenaming ? (
           <input

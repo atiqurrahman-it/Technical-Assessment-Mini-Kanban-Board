@@ -7,7 +7,7 @@ export function BoardCard({ board }: { board: BoardSummary }) {
   return (
     <Link
       href={`/boards/${board.id}`}
-      className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-foreground transition-colors group-hover:text-primary">
