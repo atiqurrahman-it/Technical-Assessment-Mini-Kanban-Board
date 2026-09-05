@@ -1,6 +1,5 @@
 "use client";
 
-import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CustomField } from "@/components/common/fields/cusInputField";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
@@ -64,126 +63,152 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setRemovingMember(null);
+      }}
+    >
       <DialogTrigger render={<Button variant="outline" />}>
         <UserPlus className="h-4 w-4" /> Share
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Share &ldquo;{board.name}&rdquo;</DialogTitle>
-          <DialogDescription>
-            People with access can view — and, with editor access, change — this
-            board.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-lg min-h-[200px]">
+        {removingMember ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Remove {removingMember.name}?</DialogTitle>
+              <DialogDescription>
+                They&apos;ll lose access to this board until invited again.
+              </DialogDescription>
+            </DialogHeader>
 
-        {isOwner && (
-          <form onSubmit={form.handleSubmit(onInvite)} className="">
-            <div className="flex-1">
-              <CustomField.Text
-                form={form}
-                name="email"
-                placeholder="Email address"
-              />
-            </div>
-            <div className="flex mt-3 items-center gap-3">
-              <div className="min-w-[130px]">
-                <CustomField.SelectField
-                  form={form}
-                  name="role"
-                  options={ROLE_OPTIONS}
-                  showSearch={false}
-                />
-              </div>
-
+            <div className="mt-4 flex justify-end gap-3">
               <Button
-                className="flex-1 py-5"
-                type="submit"
-                isLoading={addMember.isPending}
+                type="button"
+                variant="outline"
+                onClick={() => setRemovingMember(null)}
               >
-                Invite
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                isLoading={removeMember.isPending}
+                onClick={() =>
+                  removeMember.mutate(
+                    { path: `boards/${board.id}/members/${removingMember.id}` },
+                    { onSuccess: () => setRemovingMember(null) },
+                  )
+                }
+              >
+                Remove
               </Button>
             </div>
-          </form>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Share &ldquo;{board.name}&rdquo;</DialogTitle>
+              <DialogDescription>
+                People with access can view — and, with editor access, change —
+                this board.
+              </DialogDescription>
+            </DialogHeader>
+
+            {isOwner && (
+              <form onSubmit={form.handleSubmit(onInvite)} className="">
+                <div className="flex-1">
+                  <CustomField.Text
+                    form={form}
+                    name="email"
+                    placeholder="Email address"
+                  />
+                </div>
+                <div className="flex mt-3 items-center gap-3">
+                  <div className="min-w-[130px]">
+                    <CustomField.SelectField
+                      form={form}
+                      name="role"
+                      options={ROLE_OPTIONS}
+                      showSearch={false}
+                    />
+                  </div>
+
+                  <Button
+                    className="flex-1 py-5"
+                    type="submit"
+                    isLoading={addMember.isPending}
+                  >
+                    Invite
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            <Separator className="my-4" />
+
+            <div className="max-h-72 space-y-3 overflow-y-auto">
+              <MemberRow
+                name={board.owner.name}
+                email={board.owner.email}
+                roleLabel="Owner"
+              />
+
+              {board.members.map((member) => (
+                <MemberRow
+                  key={member.id}
+                  name={member.user.name}
+                  email={member.user.email}
+                  roleLabel={member.role === "EDITOR" ? "Editor" : "Viewer"}
+                  action={
+                    isOwner ? (
+                      <>
+                        <Select
+                          value={member.role}
+                          onValueChange={(role) =>
+                            updateRole.mutate({
+                              path: `boards/${board.id}/members/${member.user.id}`,
+                              role,
+                            })
+                          }
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EDITOR">Editor</SelectItem>
+                            <SelectItem value="VIEWER">Viewer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setRemovingMember({
+                              id: member.user.id,
+                              name: member.user.name,
+                            })
+                          }
+                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`Remove ${member.user.name}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    ) : undefined
+                  }
+                />
+              ))}
+
+              {board.members.length === 0 && (
+                <p className="py-2 text-sm text-muted-foreground">
+                  Not shared with anyone yet.
+                </p>
+              )}
+            </div>
+          </>
         )}
-
-        <Separator className="my-4" />
-
-        <div className="max-h-72 space-y-3 overflow-y-auto">
-          <MemberRow
-            name={board.owner.name}
-            email={board.owner.email}
-            roleLabel="Owner"
-          />
-
-          {board.members.map((member) => (
-            <MemberRow
-              key={member.id}
-              name={member.user.name}
-              email={member.user.email}
-              roleLabel={member.role === "EDITOR" ? "Editor" : "Viewer"}
-              action={
-                isOwner ? (
-                  <>
-                    <Select
-                      value={member.role}
-                      onValueChange={(role) =>
-                        updateRole.mutate({
-                          path: `boards/${board.id}/members/${member.user.id}`,
-                          role,
-                        })
-                      }
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EDITOR">Editor</SelectItem>
-                        <SelectItem value="VIEWER">Viewer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setRemovingMember({
-                          id: member.user.id,
-                          name: member.user.name,
-                        })
-                      }
-                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      aria-label={`Remove ${member.user.name}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </>
-                ) : undefined
-              }
-            />
-          ))}
-
-          {board.members.length === 0 && (
-            <p className="py-2 text-sm text-muted-foreground">
-              Not shared with anyone yet.
-            </p>
-          )}
-        </div>
       </DialogContent>
-
-      <ConfirmDialog
-        open={removingMember !== null}
-        onOpenChange={(next) => !next && setRemovingMember(null)}
-        title={`Remove ${removingMember?.name}?`}
-        description="They'll lose access to this board until invited again."
-        confirmLabel="Remove"
-        isLoading={removeMember.isPending}
-        onConfirm={() =>
-          removingMember &&
-          removeMember.mutate(
-            { path: `boards/${board.id}/members/${removingMember.id}` },
-            { onSuccess: () => setRemovingMember(null) },
-          )
-        }
-      />
     </Dialog>
   );
 }
