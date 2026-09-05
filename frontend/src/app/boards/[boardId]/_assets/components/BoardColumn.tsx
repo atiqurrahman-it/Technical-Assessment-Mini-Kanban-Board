@@ -1,9 +1,5 @@
 "use client";
 
-import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { MoreHorizontal, Plus } from "lucide-react";
-import { KeyboardEvent, useState } from "react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Column } from "@/types/kanban";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { MoreHorizontal, Plus } from "lucide-react";
+import { KeyboardEvent, useState } from "react";
 import { useDeleteColumn, useUpdateColumn } from "../services/column.service";
 import { TaskCard } from "./TaskCard";
 import { TaskDialog } from "./TaskDialog";
@@ -26,7 +30,10 @@ interface BoardColumnProps {
 export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
   // The column body itself is a drop target too, so a task can be dropped
   // into an empty column (or below the last card) — not just onto another task.
-  const { setNodeRef } = useDroppable({ id: column.id, data: { type: "column", columnId: column.id } });
+  const { setNodeRef } = useDroppable({
+    id: column.id,
+    data: { type: "column", columnId: column.id },
+  });
   const updateColumn = useUpdateColumn(boardId);
   const deleteColumn = useDeleteColumn(boardId);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -38,7 +45,10 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
     setIsRenaming(false);
     const trimmed = name.trim();
     if (trimmed && trimmed !== column.name) {
-      updateColumn.mutate({ path: `boards/${boardId}/columns/${column.id}`, name: trimmed });
+      updateColumn.mutate({
+        path: `boards/${boardId}/columns/${column.id}`,
+        name: trimmed,
+      });
     } else {
       setName(column.name);
     }
@@ -81,12 +91,25 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
 
         {canEdit && (
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" />}>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                />
+              }
+            >
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setIsRenaming(true)}>Rename</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => setConfirmingDelete(true)}>
+              <DropdownMenuItem onClick={() => setIsRenaming(true)}>
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setConfirmingDelete(true)}
+              >
                 Delete column
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -94,12 +117,25 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
         )}
       </div>
 
-      <SortableContext items={column.tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-        <div ref={setNodeRef} className="flex min-h-[40px] flex-1 flex-col gap-2 px-3 pb-3">
-          {column.tasks.map((task) => (
-            <TaskCard key={task.id} task={task} boardId={boardId} canEdit={canEdit} />
-          ))}
-        </div>
+      <SortableContext
+        items={column.tasks.map((t) => t.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <ScrollArea className="h-[320px] px-3">
+          <div
+            ref={setNodeRef}
+            className="flex min-h-[40px] flex-col gap-2 pb-3"
+          >
+            {column.tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                boardId={boardId}
+                canEdit={canEdit}
+              />
+            ))}
+          </div>
+        </ScrollArea>
       </SortableContext>
 
       {canEdit && (
@@ -115,7 +151,12 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
         </div>
       )}
 
-      <TaskDialog boardId={boardId} columnId={column.id} open={isAddingTask} onOpenChange={setIsAddingTask} />
+      <TaskDialog
+        boardId={boardId}
+        columnId={column.id}
+        open={isAddingTask}
+        onOpenChange={setIsAddingTask}
+      />
 
       <ConfirmDialog
         open={confirmingDelete}
@@ -127,7 +168,7 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
         onConfirm={() =>
           deleteColumn.mutate(
             { path: `boards/${boardId}/columns/${column.id}` },
-            { onSuccess: () => setConfirmingDelete(false) }
+            { onSuccess: () => setConfirmingDelete(false) },
           )
         }
       />

@@ -1,13 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2, UserPlus } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { CustomField } from "@/components/common/fields/cusInputField";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
-import { CustomField } from "@/components/common/fields/cusInputField";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +12,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { BoardDetail } from "@/types/kanban";
-import { InviteMemberFormValues, inviteMemberSchema } from "../schema/share.schema";
-import { useAddMember, useRemoveMember, useUpdateMemberRole } from "../services/member.service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash2, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  InviteMemberFormValues,
+  inviteMemberSchema,
+} from "../schema/share.schema";
+import {
+  useAddMember,
+  useRemoveMember,
+  useUpdateMemberRole,
+} from "../services/member.service";
 
 const ROLE_OPTIONS = [
   { label: "Editor", value: "EDITOR" },
@@ -30,7 +43,10 @@ const ROLE_OPTIONS = [
 /** Invite-by-email + member list, with role management restricted to the board owner. */
 export function ShareBoardDialog({ board }: { board: BoardDetail }) {
   const [open, setOpen] = useState(false);
-  const [removingMember, setRemovingMember] = useState<{ id: string; name: string } | null>(null);
+  const [removingMember, setRemovingMember] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const addMember = useAddMember(board.id);
   const updateRole = useUpdateMemberRole(board.id);
   const removeMember = useRemoveMember(board.id);
@@ -42,7 +58,9 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
   });
 
   function onInvite(values: InviteMemberFormValues) {
-    addMember.mutate(values, { onSuccess: () => form.reset({ email: "", role: "EDITOR" }) });
+    addMember.mutate(values, {
+      onSuccess: () => form.reset({ email: "", role: "EDITOR" }),
+    });
   }
 
   return (
@@ -54,26 +72,49 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
         <DialogHeader>
           <DialogTitle>Share &ldquo;{board.name}&rdquo;</DialogTitle>
           <DialogDescription>
-            People with access can view — and, with editor access, change — this board.
+            People with access can view — and, with editor access, change — this
+            board.
           </DialogDescription>
         </DialogHeader>
 
         {isOwner && (
-          <form onSubmit={form.handleSubmit(onInvite)} className="flex items-start gap-2">
+          <form onSubmit={form.handleSubmit(onInvite)} className="">
             <div className="flex-1">
-              <CustomField.Text form={form} name="email" placeholder="Email address" />
+              <CustomField.Text
+                form={form}
+                name="email"
+                placeholder="Email address"
+              />
             </div>
-            <CustomField.SelectField form={form} name="role" options={ROLE_OPTIONS} />
-            <Button type="submit" isLoading={addMember.isPending}>
-              Invite
-            </Button>
+            <div className="flex mt-3 items-center gap-3">
+              <div className="min-w-[130px]">
+                <CustomField.SelectField
+                  form={form}
+                  name="role"
+                  options={ROLE_OPTIONS}
+                  showSearch={false}
+                />
+              </div>
+
+              <Button
+                className="flex-1 py-5"
+                type="submit"
+                isLoading={addMember.isPending}
+              >
+                Invite
+              </Button>
+            </div>
           </form>
         )}
 
         <Separator className="my-4" />
 
         <div className="max-h-72 space-y-3 overflow-y-auto">
-          <MemberRow name={board.owner.name} email={board.owner.email} roleLabel="Owner" />
+          <MemberRow
+            name={board.owner.name}
+            email={board.owner.email}
+            roleLabel="Owner"
+          />
 
           {board.members.map((member) => (
             <MemberRow
@@ -103,7 +144,12 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
                     </Select>
                     <button
                       type="button"
-                      onClick={() => setRemovingMember({ id: member.user.id, name: member.user.name })}
+                      onClick={() =>
+                        setRemovingMember({
+                          id: member.user.id,
+                          name: member.user.name,
+                        })
+                      }
                       className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       aria-label={`Remove ${member.user.name}`}
                     >
@@ -116,7 +162,9 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
           ))}
 
           {board.members.length === 0 && (
-            <p className="py-2 text-sm text-muted-foreground">Not shared with anyone yet.</p>
+            <p className="py-2 text-sm text-muted-foreground">
+              Not shared with anyone yet.
+            </p>
           )}
         </div>
       </DialogContent>
@@ -132,7 +180,7 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
           removingMember &&
           removeMember.mutate(
             { path: `boards/${board.id}/members/${removingMember.id}` },
-            { onSuccess: () => setRemovingMember(null) }
+            { onSuccess: () => setRemovingMember(null) },
           )
         }
       />
@@ -160,7 +208,11 @@ function MemberRow({
           <p className="truncate text-xs text-muted-foreground">{email}</p>
         </div>
       </div>
-      {action ?? <span className="shrink-0 text-xs font-medium text-muted-foreground">{roleLabel}</span>}
+      {action ?? (
+        <span className="shrink-0 text-xs font-medium text-muted-foreground">
+          {roleLabel}
+        </span>
+      )}
     </div>
   );
 }
