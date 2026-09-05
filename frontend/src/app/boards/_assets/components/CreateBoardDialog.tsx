@@ -10,10 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BoardSummary } from "@/types/kanban";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -24,7 +22,6 @@ import { useCreateBoard } from "../services/board.service";
 
 export function CreateBoardDialog() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const createBoard = useCreateBoard();
   const form = useForm<CreateBoardFormValues>({
     resolver: zodResolver(createBoardSchema),
@@ -33,10 +30,9 @@ export function CreateBoardDialog() {
 
   function onSubmit(values: CreateBoardFormValues) {
     createBoard.mutate(values, {
-      onSuccess: (res: { data: BoardSummary }) => {
+      onSuccess: () => {
         setOpen(false);
         form.reset();
-        router.push(`/boards/${res.data.id}`);
       },
     });
   }
