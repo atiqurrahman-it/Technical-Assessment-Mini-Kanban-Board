@@ -13,20 +13,30 @@ const createBoard = (ownerId: string, payload: { name: string; description?: str
   prisma.board.create({ data: { ...payload, ownerId } });
 
 /** Boards the user owns or has been given access to, most recently updated first. */
-const getBoardsForUser = async (userId: string) => {
+const getBoardsForUser = async (userId: string, page = 1, pageSize = 10) => {
+  if (pageSize > 100) pageSize = 100;
+  const skip = (page - 1) * pageSize;
+  const whereCondition = { OR: [{ ownerId: userId }, { members: { some: { userId } } }] };
+
+  const totalItems = await prisma.board.count({ where: whereCondition });
   const boards = await prisma.board.findMany({
-    where: { OR: [{ ownerId: userId }, { members: { some: { userId } } }] },
+    where: whereCondition,
     orderBy: { updatedAt: 'desc' },
+    skip,
+    take: pageSize,
     include: {
       owner: { select: { id: true, name: true, email: true } },
       _count: { select: { columns: true, tasks: true } },
     },
   });
 
-  return boards.map((board) => ({
+  const data = boards.map((board) => ({
     ...board,
     role: board.ownerId === userId ? 'OWNER' : 'MEMBER',
   }));
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  return { data, pagination: { currentPage: page, perPage: pageSize, totalItems, totalPages } };
 };
 
 const getBoardDetail = (boardId: string) =>
