@@ -53,7 +53,7 @@ export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
                 e.stopPropagation();
                 setConfirmingDelete(true);
               }}
-              className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+              className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:text-destructive"
               aria-label="Delete task"
             >
               <Trash2 className="h-3.5 w-3.5" />
