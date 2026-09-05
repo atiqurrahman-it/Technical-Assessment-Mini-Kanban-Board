@@ -73,7 +73,7 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
       <DialogTrigger render={<Button variant="outline" />}>
         <UserPlus className="h-4 w-4" /> Share
       </DialogTrigger>
-      <DialogContent className="max-w-lg min-h-[200px]">
+      <DialogContent className="flex max-w-lg h-[450px] max-h-[80vh] flex-col overflow-hidden">
         {removingMember ? (
           <>
             <DialogHeader>
@@ -116,95 +116,97 @@ export function ShareBoardDialog({ board }: { board: BoardDetail }) {
               </DialogDescription>
             </DialogHeader>
 
-            {isOwner && (
-              <form onSubmit={form.handleSubmit(onInvite)} className="">
-                <div className="flex-1">
-                  <CustomField.Text
-                    form={form}
-                    name="email"
-                    placeholder="Email address"
-                  />
-                </div>
-                <div className="flex mt-3 items-center gap-3">
-                  <div className="min-w-[130px]">
-                    <CustomField.SelectField
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+              {isOwner && (
+                <form onSubmit={form.handleSubmit(onInvite)} className="">
+                  <div className="flex-1">
+                    <CustomField.Text
                       form={form}
-                      name="role"
-                      options={ROLE_OPTIONS}
-                      showSearch={false}
+                      name="email"
+                      placeholder="Email address"
                     />
                   </div>
+                  <div className="flex mt-3 items-center gap-3">
+                    <div className="min-w-[130px]">
+                      <CustomField.SelectField
+                        form={form}
+                        name="role"
+                        options={ROLE_OPTIONS}
+                        showSearch={false}
+                      />
+                    </div>
 
-                  <Button
-                    className="flex-1 py-5"
-                    type="submit"
-                    isLoading={addMember.isPending}
-                  >
-                    Invite
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            <Separator className="my-4" />
-
-            <div className="max-h-72 space-y-3 overflow-y-auto">
-              <MemberRow
-                name={board.owner.name}
-                email={board.owner.email}
-                roleLabel="Owner"
-              />
-
-              {board.members.map((member) => (
-                <MemberRow
-                  key={member.id}
-                  name={member.user.name}
-                  email={member.user.email}
-                  roleLabel={member.role === "EDITOR" ? "Editor" : "Viewer"}
-                  action={
-                    isOwner ? (
-                      <>
-                        <Select
-                          value={member.role}
-                          onValueChange={(role) =>
-                            updateRole.mutate({
-                              path: `boards/${board.id}/members/${member.user.id}`,
-                              role,
-                            })
-                          }
-                        >
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="EDITOR">Editor</SelectItem>
-                            <SelectItem value="VIEWER">Viewer</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setRemovingMember({
-                              id: member.user.id,
-                              name: member.user.name,
-                            })
-                          }
-                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                          aria-label={`Remove ${member.user.name}`}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </>
-                    ) : undefined
-                  }
-                />
-              ))}
-
-              {board.members.length === 0 && (
-                <p className="py-2 text-sm text-muted-foreground">
-                  Not shared with anyone yet.
-                </p>
+                    <Button
+                      className="flex-1 py-5"
+                      type="submit"
+                      isLoading={addMember.isPending}
+                    >
+                      Invite
+                    </Button>
+                  </div>
+                </form>
               )}
+
+              <Separator className="my-4" />
+
+              <div className="space-y-3">
+                <MemberRow
+                  name={board.owner.name}
+                  email={board.owner.email}
+                  roleLabel="Owner"
+                />
+
+                {board.members.map((member) => (
+                  <MemberRow
+                    key={member.id}
+                    name={member.user.name}
+                    email={member.user.email}
+                    roleLabel={member.role === "EDITOR" ? "Editor" : "Viewer"}
+                    action={
+                      isOwner ? (
+                        <>
+                          <Select
+                            value={member.role}
+                            onValueChange={(role) =>
+                              updateRole.mutate({
+                                path: `boards/${board.id}/members/${member.user.id}`,
+                                role,
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="EDITOR">Editor</SelectItem>
+                              <SelectItem value="VIEWER">Viewer</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRemovingMember({
+                                id: member.user.id,
+                                name: member.user.name,
+                              })
+                            }
+                            className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                            aria-label={`Remove ${member.user.name}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : undefined
+                    }
+                  />
+                ))}
+
+                {board.members.length === 0 && (
+                  <p className="py-2 text-sm text-muted-foreground">
+                    Not shared with anyone yet.
+                  </p>
+                )}
+              </div>
             </div>
           </>
         )}
