@@ -1,25 +1,27 @@
-# --- deps ---
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
+# Use an official Node.js runtime as the base image
+FROM node:20
 
-# --- build ---
-FROM node:20-alpine AS build
-WORKDIR /app
+
+
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
 
-# --- runtime: Next's standalone output (see next.config.ts) ---
-FROM node:20-alpine AS runtime
+# Set working directory
 WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/public ./public
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
 
+# Copy the rest of the application code
+COPY . .
+
+
+
+# Install dependencies
+RUN npm install && npm run build
+
+
+
+
+# Expose the port Next.js runs on
 EXPOSE 3000
-CMD ["node", "server.js"]
+
+# Start the application
+CMD ["npm", "run", "start"]

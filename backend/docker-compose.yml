@@ -3,31 +3,28 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: kanban
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - '5433:5432'
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/kanban
-      PORT: 4000
-      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-long-random-secret}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      CORS_ORIGIN: ${FRONTEND_URL:-http://localhost:3000}
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      CORS_ORIGIN: ${CORS_ORIGIN}
     ports:
       - '4000:4000'
 

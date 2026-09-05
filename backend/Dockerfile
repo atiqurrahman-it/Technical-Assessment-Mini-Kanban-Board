@@ -1,29 +1,17 @@
-# --- deps: install once, reused by the build stage ---
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
+# Use an official Node.js runtime as a parent image
+FROM node:20
 
-# --- build: compile TypeScript and generate the Prisma client ---
-FROM node:20-alpine AS build
+# Set the working directory inside the container
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Copy the rest of the application files
 COPY . .
-RUN npx prisma generate
-RUN npm run build
 
-# --- runtime: slim image with only production deps + compiled output ---
-FROM node:20-alpine AS runtime
-WORKDIR /app
-ENV NODE_ENV=production
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-COPY prisma ./prisma
+# Install dependencies and build the application
+RUN npm install && npm run build
 
+# Expose the port your app runs on
 EXPOSE 4000
 
-# Apply any pending migrations, then start the server.
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+# Start the application
+CMD ["npm", "run", "start"]
