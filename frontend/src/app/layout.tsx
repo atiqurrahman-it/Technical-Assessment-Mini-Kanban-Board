@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import TanStackQueryWrapper from "@/components/setupComponents/tanstackQuery/tanstackWrapper";
 import { ThemeProvider } from "@/components/setupComponents/ThemeProvider";
 import TopProgressBarProvider from "@/components/setupComponents/TopProgressBar/ProgressProvider";
+import { CustomLayout } from "@/components/layout/CustomLayout";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/store/authStore";
 import "./globals.css";
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <TanStackQueryWrapper>
             <AuthProvider>
               <TopProgressBarProvider>
-                <TooltipProvider>{children}</TooltipProvider>
+                <TooltipProvider>
+                  <CustomLayout>{children}</CustomLayout>
+                </TooltipProvider>
               </TopProgressBarProvider>
             </AuthProvider>
           </TanStackQueryWrapper>

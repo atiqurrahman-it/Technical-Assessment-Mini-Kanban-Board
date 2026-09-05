@@ -8,9 +8,10 @@ import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hook/useAuth";
+import { HeaderSlotTarget } from "./HeaderSlot";
 
-/** App-wide top bar. `children` is a slot for page-specific context (e.g. the board name/actions). */
-export function AppHeader({ children }: { children?: React.ReactNode }) {
+/** App-wide top bar, rendered once by `CustomLayout`. Pages inject extra context (e.g. a board name) via `HeaderSlot`. */
+export function AppHeader() {
   const { user, signOut } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
 
@@ -22,7 +23,7 @@ export function AppHeader({ children }: { children?: React.ReactNode }) {
             <LayoutDashboard className="h-5 w-5 text-primary" />
             Kanban
           </Link>
-          {children}
+          <HeaderSlotTarget />
         </div>
 
         <div className="flex shrink-0 items-center gap-3">

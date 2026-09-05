@@ -2,7 +2,6 @@
 
 import { LayoutGrid } from "lucide-react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { AppHeader } from "@/components/layout/AppHeader";
 import { BoardCard } from "./_assets/components/BoardCard";
 import { BoardsSkeleton } from "./_assets/components/BoardsSkeleton";
 import { CreateBoardDialog } from "./_assets/components/CreateBoardDialog";
@@ -11,7 +10,6 @@ import { useBoards } from "./_assets/services/board.service";
 export default function BoardsContainer() {
   return (
     <AuthGuard>
-      <AppHeader />
       <BoardsList />
     </AuthGuard>
   );
