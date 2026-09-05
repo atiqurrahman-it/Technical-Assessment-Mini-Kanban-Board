@@ -36,27 +36,27 @@ export const Text = ({
         {disableLabelFormatting
           ? labelName
           : LabelAndPlaceholderTextFormat(labelName)}
-        {required && <span className="text-[#ff0000]">&nbsp;*</span>}
+        {required && <span className="text-destructive">&nbsp;*</span>}
       </>
     ) : null;
 
   const ViewOnly = (text: string) =>
     viewOnly ? (
-      <div className="py-2 px-3 text-sm text-gray-900 bg-white rounded-md border border-gray-200 min-h-10">
+      <div className="py-2 px-3 text-sm text-foreground bg-muted rounded-md border border-border min-h-10">
         {text || ""}
       </div>
     ) : null;
 
   const RightIcon = () =>
     rightIcon ? (
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[1rem] dark:text-slate-400 text-[#777777] cursor-pointer">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[1rem] text-muted-foreground cursor-pointer">
         {rightIcon}
       </div>
     ) : null;
 
   const LeftIcon = () =>
     leftIcon ? (
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[1rem] dark:text-slate-400 text-[#777777]">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[1rem] text-muted-foreground">
         {leftIcon}
       </div>
     ) : null;
@@ -81,9 +81,7 @@ export const Text = ({
                   <LeftIcon />
                   <Input
                     id={field.name}
-                    className={`peer focus-visible:ring-0 focus-visible:ring-offset-0 border-[#e5eaf2] dark:bg-slate-900 dark:placeholder:text-slate-500 dark:text-[#abc2d3] dark:border-slate-600 border rounded-md outline-none ${rightIcon ? "pr-10" : "pr-4"} ${leftIcon ? "pl-10" : "pl-4"} py-3 w-full focus:border-[#3B9DF8] transition-colors duration-300 ${
-                      fieldState.invalid && "border-red-600"
-                    }`}
+                    className={`peer focus-visible:ring-0 focus-visible:ring-offset-0 rounded-md outline-none ${rightIcon ? "pr-10" : "pr-4"} ${leftIcon ? "pl-10" : "pl-4"} py-3 w-full transition-colors duration-300`}
                     suppressHydrationWarning
                     placeholder={placeholderText}
                     disabled={disabled}
@@ -121,7 +119,7 @@ export const Text = ({
           <div className="w-full relative">
             <LeftIcon />
             <Input
-              className={`peer focus-visible:ring-0 focus-visible:ring-offset-0 border-[#e5eaf2] dark:bg-slate-900 dark:placeholder:text-slate-500 dark:text-[#abc2d3] dark:border-slate-600 border rounded-md outline-none ${rightIcon ? "pr-10" : "pr-4"} ${leftIcon ? "pl-10" : "pl-4"} py-3 w-full focus:border-[#3B9DF8] transition-colors duration-300 `}
+              className={`peer focus-visible:ring-0 focus-visible:ring-offset-0 rounded-md outline-none ${rightIcon ? "pr-10" : "pr-4"} ${leftIcon ? "pl-10" : "pl-4"} py-3 w-full transition-colors duration-300`}
               value={value}
               onChange={(e) => setValue?.(e.target.value || "")}
               type="text"

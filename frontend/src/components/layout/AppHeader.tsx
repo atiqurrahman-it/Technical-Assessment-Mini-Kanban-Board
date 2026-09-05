@@ -4,6 +4,7 @@ import { LayoutDashboard, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hook/useAuth";
@@ -25,6 +26,7 @@ export function AppHeader({ children }: { children?: React.ReactNode }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
+          <ThemeToggle />
           {user && <UserAvatar name={user.name} />}
           <Button
             variant="ghost"

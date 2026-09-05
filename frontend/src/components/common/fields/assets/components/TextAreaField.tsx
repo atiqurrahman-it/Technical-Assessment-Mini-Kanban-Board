@@ -34,13 +34,13 @@ export const TextArea = ({
         {disableLabelFormatting
           ? labelName
           : LabelAndPlaceholderTextFormat(labelName)}
-        {required && <span className="text-[#ff0000]">&nbsp;*</span>}
+        {required && <span className="text-destructive">&nbsp;*</span>}
       </>
     ) : null;
 
   const ViewOnly = (text: string) =>
     viewOnly ? (
-      <div className="py-2 px-3 text-sm text-gray-900 whitespace-pre-wrap break-words bg-white rounded-md border border-gray-200 min-h-32">
+      <div className="py-2 px-3 text-sm text-foreground whitespace-pre-wrap break-words bg-muted rounded-md border border-border min-h-32">
         {text || ""}
       </div>
     ) : null;
@@ -69,11 +69,7 @@ export const TextArea = ({
                 suppressHydrationWarning
                 placeholder={placeholderText}
                 aria-invalid={fieldState.invalid}
-                className={`resize-none focus-visible:ring-0 focus-visible:ring-offset-0 border rounded-md transition-colors duration-300 ${
-                  fieldState.invalid
-                    ? "border-red-600"
-                    : "border-[#e5eaf2] focus:border-[#3B9DF8]"
-                }`}
+                className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-md transition-colors duration-300"
               />
             )}
 
@@ -101,7 +97,7 @@ export const TextArea = ({
             disabled={disabled}
             placeholder={placeholderText}
             onChange={(e: any) => setValue?.(e.target.value)}
-            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 border border-[#e5eaf2] rounded-md focus:border-[#3B9DF8]"
+            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-md"
           />
         </>
       )}

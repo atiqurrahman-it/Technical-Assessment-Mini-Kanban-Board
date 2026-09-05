@@ -51,6 +51,51 @@
   --sidebar-ring: #4f46e5;
 }
 
+/* ============================================================================
+   Design tokens — dark mode. Same neutral-gray + indigo family as light mode,
+   inverted and re-balanced for contrast rather than swapped for a different
+   palette, so both themes read as the same product.
+   ============================================================================ */
+.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+
+  --card: #1f2937;
+  --card-foreground: #f9fafb;
+
+  --popover: #1f2937;
+  --popover-foreground: #f9fafb;
+
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-foreground: #ffffff;
+
+  --secondary: #374151;
+  --secondary-foreground: #f9fafb;
+
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+
+  --accent: #312e81;
+  --accent-foreground: #c7d2fe;
+
+  --destructive: #f87171;
+  --destructive-foreground: #1f2937;
+
+  --border: #374151;
+  --input: #374151;
+  --ring: #6366f1;
+
+  --sidebar: #1f2937;
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #312e81;
+  --sidebar-accent-foreground: #c7d2fe;
+  --sidebar-border: #374151;
+  --sidebar-ring: #6366f1;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

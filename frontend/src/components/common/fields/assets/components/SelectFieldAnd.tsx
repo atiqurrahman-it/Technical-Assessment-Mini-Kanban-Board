@@ -330,8 +330,8 @@ export const SelectField = React.forwardRef(
             disabled={disabled || viewOnly}
             onClick={() => !disabled && !viewOnly && setIsOpen((p) => !p)}
             className={cn(
-              "cursor-pointer w-full min-h-11 rounded-lg border border-white/40 dark:border-white/10 px-3 py-2 flex items-center justify-between gap-2",
-              "hover:bg-muted/50 dark:hover:bg-white/5 transition-colors",
+              "cursor-pointer w-full min-h-11 rounded-lg border border-input px-3 py-2 flex items-center justify-between gap-2",
+              "hover:bg-muted/50 transition-colors",
               isInvalid && "border-destructive",
               disabled && "opacity-50 cursor-not-allowed",
               className,

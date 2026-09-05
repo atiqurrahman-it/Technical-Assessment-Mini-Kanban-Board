@@ -43,22 +43,19 @@ export const Password = ({
               {disableLabelFormatting
                 ? labelName
                 : LabelAndPlaceholderTextFormat(labelName)}
-              {required && <span className="text-[#ff0000]">&nbsp;*</span>}
+              {required && <span className="text-destructive">&nbsp;*</span>}
             </FieldLabel>
           )}
           <div className="relative">
             {showIcon && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777777] z-10">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
                 {<Lock size={20} />}
               </div>
             )}
 
             <Input
               id={field.name}
-              className={`py-3 w-full border rounded-md pr-10
-                ${showIcon ? "pl-10" : "pl-4"}
-                ${fieldState.invalid ? "border-red-600" : "border-[#e5eaf2]"}
-                focus:border-[#3B9DF8]`}
+              className={`py-3 w-full rounded-md pr-10 ${showIcon ? "pl-10" : "pl-4"}`}
               type={showPassword ? "text" : "password"}
               placeholder={placeholderText}
               {...field}
@@ -99,12 +96,12 @@ export const Password = ({
                     <li
                       key={index}
                       className={`flex items-center gap-2 ${
-                        passed ? "text-green-600" : "text-red-500"
+                        passed ? "text-green-600 dark:text-green-400" : "text-destructive"
                       }`}
                     >
                       <span
                         className={`w-2 h-2 rounded-full inline-block ${
-                          passed ? "bg-green-600" : "bg-gray-400"
+                          passed ? "bg-green-600 dark:bg-green-400" : "bg-destructive"
                         }`}
                       />
                       {rule.label}

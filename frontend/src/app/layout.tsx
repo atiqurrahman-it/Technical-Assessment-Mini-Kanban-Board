@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <TanStackQueryWrapper>
@@ -41,9 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           toastOptions={{
             duration: 3000,
             style: {
-              background: "#ffffff",
-              color: "#111827",
-              border: "1px solid #e5e7eb",
+              background: "var(--popover)",
+              color: "var(--popover-foreground)",
+              border: "1px solid var(--border)",
               boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
             },
           }}

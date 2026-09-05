@@ -36,12 +36,12 @@ export const Number = ({
               {disableLabelFormatting
                 ? labelName
                 : LabelAndPlaceholderTextFormat(labelName)}
-              {required && <span className="text-[#ff0000]">&nbsp;*</span>}
+              {required && <span className="text-destructive">&nbsp;*</span>}
             </FieldLabel>
           )}
 
           {viewOnly ? (
-            <div className="py-2 px-3 text-sm text-gray-900 bg-white rounded-md border border-gray-200 min-h-10">
+            <div className="py-2 px-3 text-sm text-foreground bg-muted rounded-md border border-border min-h-10">
               {field.value ?? ""}
             </div>
           ) : (
@@ -50,12 +50,10 @@ export const Number = ({
               type="number"
               step={numberType === "float" ? "any" : "0"}
               min={0}
-              className={`focus-visible:ring-0 focus-visible:ring-offset-0
+              className="focus-visible:ring-0 focus-visible:ring-offset-0
                    [&::-webkit-outer-spin-button]:appearance-none
                    [&::-webkit-inner-spin-button]:appearance-none
-                   [appearance:textfield] ${
-                     fieldState.invalid && "border-red-600"
-                   }`}
+                   [appearance:textfield]"
               placeholder={placeholderText}
               value={field.value ?? ""}
               aria-invalid={fieldState.invalid}
