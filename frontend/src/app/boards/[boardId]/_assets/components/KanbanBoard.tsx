@@ -1,5 +1,6 @@
 "use client";
 
+import { BoardDetail, Task } from "@/types/kanban";
 import {
   DndContext,
   DragEndEvent,
@@ -11,7 +12,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useState } from "react";
-import { BoardDetail, Task } from "@/types/kanban";
 import { useMoveTask } from "../services/task.service";
 import { AddColumnForm } from "./AddColumnForm";
 import { BoardColumn } from "./BoardColumn";
@@ -61,7 +61,9 @@ export function KanbanBoard({ board }: { board: BoardDetail }) {
     const overData = over.data.current as DroppableData | undefined;
     if (!overData) return;
 
-    const sourceColumn = board.columns.find((c) => c.tasks.some((t) => t.id === activeId));
+    const sourceColumn = board.columns.find((c) =>
+      c.tasks.some((t) => t.id === activeId),
+    );
     const targetColumn = board.columns.find((c) => c.id === overData.columnId);
     if (!sourceColumn || !targetColumn) return;
 
@@ -72,7 +74,9 @@ export function KanbanBoard({ board }: { board: BoardDetail }) {
       targetIndex = targetColumn.tasks.length;
     } else {
       const withoutActive = targetColumn.tasks.filter((t) => t.id !== activeId);
-      const overIndex = withoutActive.findIndex((t) => t.id === String(over.id));
+      const overIndex = withoutActive.findIndex(
+        (t) => t.id === String(over.id),
+      );
       targetIndex = overIndex === -1 ? withoutActive.length : overIndex;
     }
 
@@ -97,15 +101,27 @@ export function KanbanBoard({ board }: { board: BoardDetail }) {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex h-full items-start gap-5 overflow-x-auto pb-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3  h-full items-start  overflow-x-auto pb-4">
         {board.columns.map((column) => (
-          <BoardColumn key={column.id} boardId={board.id} column={column} canEdit={canEdit} />
+          <BoardColumn
+            key={column.id}
+            boardId={board.id}
+            column={column}
+            canEdit={canEdit}
+          />
         ))}
         {canEdit && <AddColumnForm boardId={board.id} />}
       </div>
 
       <DragOverlay>
-        {activeTask ? <TaskCard task={activeTask} boardId={board.id} canEdit={canEdit} overlay /> : null}
+        {activeTask ? (
+          <TaskCard
+            task={activeTask}
+            boardId={board.id}
+            canEdit={canEdit}
+            overlay
+          />
+        ) : null}
       </DragOverlay>
     </DndContext>
   );
