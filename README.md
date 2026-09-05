@@ -4,12 +4,12 @@ A small Trello-style app: create boards, organize them into columns, add tasks, 
 
 ## Tech stack
 
-| Layer    | Choice                                                        |
-| -------- | -------------------------------------------------------------- |
+| Layer    | Choice                                                                                       |
+| -------- | -------------------------------------------------------------------------------------------- |
 | Frontend | Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · TanStack Query · dnd-kit |
-| Backend  | Express 4 · TypeScript · Prisma 5 · Zod · JWT (`jsonwebtoken` + `bcrypt`) |
-| Database | PostgreSQL 16                                                  |
-| DevOps   | Docker Compose (separate `backend/` and `frontend/` compose files) |
+| Backend  | Express 4 · TypeScript · Prisma 5 · Zod · JWT (`jsonwebtoken` + `bcrypt`)                    |
+| Database | PostgreSQL 16                                                                                |
+| DevOps   | Docker Compose (separate `backend/` and `frontend/` compose files)                           |
 
 ## Repository layout
 
@@ -39,11 +39,11 @@ Backend and frontend each have their own `docker-compose.yml`, so bring them up 
 ```bash
 # 1. Backend + Postgres
 cd backend
-docker compose up --build       # http://localhost:4000/api/v1
+sudo docker compose up --build       # http://localhost:4000/api/v1
 
 # 2. Frontend (in a second terminal)
 cd frontend
-docker compose up --build       # http://localhost:3000
+sudo docker compose up --build       # http://localhost:3000
 ```
 
 `backend/docker-compose.yml` reads its variables from `backend/.env` (already present in this repo — edit it to change credentials/secrets); `frontend/docker-compose.yml` reads `NEXT_PUBLIC_API_URL` from the shell environment or `frontend/.env` (falls back to `http://localhost:4000/api/v1` if unset). See the sample env vars below.
@@ -97,27 +97,27 @@ NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
 
 All routes below are prefixed with `/api/v1`. Authenticated routes expect `Authorization: Bearer <token>`.
 
-| Method | Path                                   | Access        | Purpose                              |
-| ------ | --------------------------------------- | ------------- | ------------------------------------- |
-| POST   | `/auth/register`                        | Public        | Create an account                     |
-| POST   | `/auth/login`                           | Public        | Sign in                               |
-| GET    | `/auth/me`                              | Any user      | Current user                          |
-| POST   | `/boards`                                | Any user      | Create a board (creator becomes owner) |
-| GET    | `/boards`                                | Any user      | List boards you own or have access to |
-| GET    | `/boards/:boardId`                       | Viewer+       | Board detail (columns, tasks, members) |
-| PATCH  | `/boards/:boardId`                       | Owner         | Rename / edit description             |
-| DELETE | `/boards/:boardId`                       | Owner         | Delete the board                      |
-| POST   | `/boards/:boardId/members`               | Owner         | Share the board with a registered user |
-| GET    | `/boards/:boardId/members`                | Viewer+       | List members                          |
-| PATCH  | `/boards/:boardId/members/:userId`        | Owner         | Change a member's role                |
-| DELETE | `/boards/:boardId/members/:userId`        | Owner         | Revoke access                         |
-| POST   | `/boards/:boardId/columns`                | Editor+       | Create a column                       |
-| PATCH  | `/boards/:boardId/columns/:columnId`      | Editor+       | Rename a column                       |
-| DELETE | `/boards/:boardId/columns/:columnId`      | Editor+       | Delete a column (and its tasks)       |
-| POST   | `/boards/:boardId/tasks`                  | Editor+       | Create a task                         |
-| PATCH  | `/boards/:boardId/tasks/:taskId`          | Editor+       | Edit a task's title/description       |
-| DELETE | `/boards/:boardId/tasks/:taskId`          | Editor+       | Delete a task                         |
-| PATCH  | `/boards/:boardId/tasks/:taskId/move`     | Editor+       | **Task Movement API** — reorder within a column or move to `{ targetColumnId, targetIndex }` in another |
+| Method | Path                                  | Access   | Purpose                                                                                                 |
+| ------ | ------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| POST   | `/auth/register`                      | Public   | Create an account                                                                                       |
+| POST   | `/auth/login`                         | Public   | Sign in                                                                                                 |
+| GET    | `/auth/me`                            | Any user | Current user                                                                                            |
+| POST   | `/boards`                             | Any user | Create a board (creator becomes owner)                                                                  |
+| GET    | `/boards`                             | Any user | List boards you own or have access to                                                                   |
+| GET    | `/boards/:boardId`                    | Viewer+  | Board detail (columns, tasks, members)                                                                  |
+| PATCH  | `/boards/:boardId`                    | Owner    | Rename / edit description                                                                               |
+| DELETE | `/boards/:boardId`                    | Owner    | Delete the board                                                                                        |
+| POST   | `/boards/:boardId/members`            | Owner    | Share the board with a registered user                                                                  |
+| GET    | `/boards/:boardId/members`            | Viewer+  | List members                                                                                            |
+| PATCH  | `/boards/:boardId/members/:userId`    | Owner    | Change a member's role                                                                                  |
+| DELETE | `/boards/:boardId/members/:userId`    | Owner    | Revoke access                                                                                           |
+| POST   | `/boards/:boardId/columns`            | Editor+  | Create a column                                                                                         |
+| PATCH  | `/boards/:boardId/columns/:columnId`  | Editor+  | Rename a column                                                                                         |
+| DELETE | `/boards/:boardId/columns/:columnId`  | Editor+  | Delete a column (and its tasks)                                                                         |
+| POST   | `/boards/:boardId/tasks`              | Editor+  | Create a task                                                                                           |
+| PATCH  | `/boards/:boardId/tasks/:taskId`      | Editor+  | Edit a task's title/description                                                                         |
+| DELETE | `/boards/:boardId/tasks/:taskId`      | Editor+  | Delete a task                                                                                           |
+| PATCH  | `/boards/:boardId/tasks/:taskId/move` | Editor+  | **Task Movement API** — reorder within a column or move to `{ targetColumnId, targetIndex }` in another |
 
 ## Verifying it works
 
