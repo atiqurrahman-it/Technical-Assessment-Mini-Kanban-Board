@@ -6,5 +6,9 @@ export default async function BoardDetailPage({
   params: Promise<{ boardId: string }>;
 }) {
   const { boardId } = await params;
-  return <BoardDetailContainer boardId={boardId} />;
+  return (
+    <div className="mx-auto max-w-7xl ">
+      <BoardDetailContainer boardId={boardId} />;
+    </div>
+  );
 }
