@@ -1,10 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { CustomField } from "@/components/common/fields/cusInputField";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,11 +11,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { BoardSummary } from "@/types/kanban";
-import { CreateBoardFormValues, createBoardSchema } from "../schema/create-board.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  CreateBoardFormValues,
+  createBoardSchema,
+} from "../schema/create-board.schema";
 import { useCreateBoard } from "../services/board.service";
 
 export function CreateBoardDialog() {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
   const router = useRouter();
   const createBoard = useCreateBoard();
   const form = useForm<CreateBoardFormValues>({
@@ -33,6 +39,10 @@ export function CreateBoardDialog() {
       onSuccess: (res: { data: BoardSummary }) => {
         setOpen(false);
         form.reset();
+        // update ui show for  boards
+        queryClient.invalidateQueries({
+          queryKey: [`boards`],
+        });
         router.push(`/boards/${res.data.id}`);
       },
     });
@@ -68,7 +78,11 @@ export function CreateBoardDialog() {
             rows={3}
           />
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" isLoading={createBoard.isPending}>
