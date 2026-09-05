@@ -7,11 +7,11 @@ WORKDIR /app
 # Copy the rest of the application files
 COPY . .
 
-# Install dependencies and build the application
-RUN npm install && npm run build
+# Install dependencies, generate the Prisma client, and build the application
+RUN npm install && npm run prisma:generate && npm run build
 
 # Expose the port your app runs on
 EXPOSE 4000
 
-# Start the application
-CMD ["npm", "run", "start"]
+# Apply pending migrations, then start the application
+CMD ["sh", "-c", "npm run prisma:deploy && npm run start"]
