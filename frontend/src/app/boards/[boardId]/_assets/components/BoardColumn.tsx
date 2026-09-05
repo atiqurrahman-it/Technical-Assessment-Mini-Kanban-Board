@@ -85,8 +85,8 @@ export function BoardColumn({ boardId, column, canEdit }: BoardColumnProps) {
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => setIsRenaming(true)}>Rename</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onSelect={() => setConfirmingDelete(true)}>
+              <DropdownMenuItem onClick={() => setIsRenaming(true)}>Rename</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={() => setConfirmingDelete(true)}>
                 Delete column
               </DropdownMenuItem>
             </DropdownMenuContent>
