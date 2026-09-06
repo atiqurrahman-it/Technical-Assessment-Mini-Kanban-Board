@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Trash2 } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { cn } from "@/lib/utils";
@@ -35,34 +35,46 @@ export function TaskCard({ task, boardId, canEdit, overlay }: TaskCardProps) {
       <div
         ref={overlay ? undefined : setNodeRef}
         style={style}
-        {...(overlay ? {} : attributes)}
-        {...(overlay ? {} : listeners)}
         onClick={() => !isDragging && setIsEditing(true)}
         className={cn(
-          "group cursor-pointer rounded-lg border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md",
+          "group flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md",
           isDragging && "opacity-40",
           overlay && "rotate-2 shadow-lg",
         )}
       >
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-foreground">{task.title}</p>
-          {canEdit && !overlay && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setConfirmingDelete(true);
-              }}
-              className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:text-destructive"
-              aria-label="Delete task"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+        {canEdit && !overlay && (
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            {...attributes}
+            {...listeners}
+            className="mt-0.5 shrink-0 cursor-grab touch-none rounded p-0.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground active:cursor-grabbing"
+            aria-label="Drag to reorder task"
+          >
+            <GripVertical className="h-3.5 w-3.5" />
+          </button>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-medium text-foreground">{task.title}</p>
+            {canEdit && !overlay && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmingDelete(true);
+                }}
+                className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:text-destructive"
+                aria-label="Delete task"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          {task.description && (
+            <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
           )}
         </div>
-        {task.description && (
-          <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
-        )}
       </div>
 
       {!overlay && (
